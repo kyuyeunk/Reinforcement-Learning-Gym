@@ -15,13 +15,13 @@ class Environment:
     # Reset the environment and return new observation
     def reset(self):
         observation = self.env.reset()
-        return data_to_torch(observation, torch.float32, self.device)
+        return data_to_torch(observation, torch.float32, self.device).flatten()
 
     # Perform step and return torch friendly observation and reward
     def step(self, action):
         self.total_steps += 1
         observation, reward, done, info = self.env.step(action)
-        observation = data_to_torch(observation, torch.float32, self.device)
+        observation = data_to_torch(observation, torch.float32, self.device).flatten()
         reward = data_to_torch([reward], torch.float32, self.device)
         done = data_to_torch(done, torch.bool, self.device)
         return observation, reward, done, info
