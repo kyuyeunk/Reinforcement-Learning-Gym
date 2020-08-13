@@ -3,15 +3,17 @@ from torch import nn, optim
 
 
 class Model(nn.Module):
-    def __init__(self, input_shape, n_output):
+    def __init__(self, layers):
         super().__init__()
-        self.n_input = input_shape[0]
-        self.n_output = n_output
-        self.net = nn.Sequential(
-            nn.Linear(self.n_input, 256),
-            nn.ReLU(),
-            nn.Linear(256, self.n_output)
-        )
+        assert(len(layers) >= 2)
+
+        networks = []
+        for i in range(0, len(layers) - 2):
+            networks.append(nn.Linear(layers[i], layers[i+1]))
+            networks.append(nn.ReLU())
+        networks.append(nn.Linear(layers[-2], layers[-1]))
+
+        self.net = nn.Sequential(*networks)
 
     def forward(self, x):
         return self.net(x)
@@ -30,9 +32,9 @@ def merge_samples(samples):
 
 
 class Agent:
-    def __init__(self, n_input, n_output, learning_rate, gamma, device):
-        self.train_model = Model(n_input, n_output).to(device)
-        self.target_model = Model(n_input, n_output).to(device)
+    def __init__(self, layers, learning_rate, gamma, device):
+        self.train_model = Model(layers).to(device)
+        self.target_model = Model(layers).to(device)
         self.target_model.eval()
         self.update_target_model()
 

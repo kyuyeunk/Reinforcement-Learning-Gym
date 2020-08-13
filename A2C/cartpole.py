@@ -8,18 +8,20 @@ from shared.tensorboard_wrapper import TensorboardWrapper
 
 
 def main():
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    env = Environment('CartPole-v1', device)
+    n_inputs = env.get_shape_observations()[0]
+    n_outputs = env.get_n_actions()
+
     # Hyper parameters
     train_seconds = 60 * 60
     actor_learning_rate = 0.00005
     critic_learning_rate = 0.0003
     gamma = 0.99
+    actor_layers = [n_inputs, 256, n_outputs]
+    critic_layers = [n_inputs, 256, 1]
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    env = Environment('CartPole-v1', device)
-    prev_state = env.reset()
-
-    agent = Agent(env.get_shape_observations(), env.get_n_actions(), actor_learning_rate, critic_learning_rate, gamma, device)
+    agent = Agent(actor_layers, critic_layers, actor_learning_rate, critic_learning_rate, gamma, device)
 
     tq = tqdm()
 
@@ -30,6 +32,7 @@ def main():
     score = 0
     epoch = 0
 
+    prev_state = env.reset()
     now = time.time()
     start_time = now
     while now - start_time < train_seconds:

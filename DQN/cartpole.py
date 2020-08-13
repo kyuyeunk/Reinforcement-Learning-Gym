@@ -11,6 +11,11 @@ from shared.utils import data_to_torch
 
 
 def main():
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    env = Environment('CartPole-v1', device)
+    n_inputs = env.get_shape_observations()[0]
+    n_outputs = env.get_n_actions()
+
     # Hyper parameters
     train_seconds = 60 * 60
     batch_size = 2048
@@ -18,17 +23,12 @@ def main():
     learning_rate = 0.00005
     target_update_frequency = 2048
     gamma = 0.99
-
     p_decay = 0.001
     p_min = 0.05
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    env = Environment('CartPole-v1', device)
-    prev_state = env.reset()
+    layers = [n_inputs, 256, n_outputs]
 
     buffer = ReplayBuffer(buffer_size)
-    agent = Agent(env.get_shape_observations(), env.get_n_actions(), learning_rate, gamma, device)
+    agent = Agent(layers, learning_rate, gamma, device)
 
     tq = tqdm()
 
@@ -39,6 +39,7 @@ def main():
     score = 0
     epoch = 0
 
+    prev_state = env.reset()
     now = time.time()
     start_time = now
     while now - start_time < train_seconds:

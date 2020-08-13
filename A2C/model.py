@@ -4,24 +4,26 @@ import torch.nn.functional as F
 
 
 class Model(nn.Module):
-    def __init__(self, input_shape, n_output):
+    def __init__(self, layers):
         super().__init__()
-        self.n_input = input_shape[0]
-        self.n_output = n_output
-        self.net = nn.Sequential(
-            nn.Linear(self.n_input, 256),
-            nn.ReLU(),
-            nn.Linear(256, self.n_output)
-        )
+        assert(len(layers) >= 2)
+
+        networks = []
+        for i in range(0, len(layers) - 2):
+            networks.append(nn.Linear(layers[i], layers[i+1]))
+            networks.append(nn.ReLU())
+        networks.append(nn.Linear(layers[-2], layers[-1]))
+
+        self.net = nn.Sequential(*networks)
 
     def forward(self, x):
         return self.net(x)
 
 
 class Agent:
-    def __init__(self, n_input, n_output, actor_learning_rate, critic_learning_rate, gamma, device):
-        self.actor_model = Model(n_input, n_output).to(device)
-        self.critic_model = Model(n_input, 1).to(device)
+    def __init__(self, actor_layers, critic_layers, actor_learning_rate, critic_learning_rate, gamma, device):
+        self.actor_model = Model(actor_layers).to(device)
+        self.critic_model = Model(critic_layers).to(device)
 
         self.actor_optimizer = optim.Adam(self.actor_model.parameters(), lr=actor_learning_rate)
         self.critic_optimizer = optim.Adam(self.critic_model.parameters(), lr=critic_learning_rate)
