@@ -7,19 +7,34 @@ from DQN.replay_buffer import ReplayBuffer
 from DQN.model import Agent
 from shared.tensorboard_wrapper import TensorboardWrapper
 from shared.utils import data_to_torch
+from enum import IntEnum
+
+
+class HyperParameters(IntEnum):
+    TRAIN_SECONDS = 0
+    BATCH_SIZE = 1
+    BUFFER_SIZE = 2
+    LEARNING_RATE = 3
+    TARGET_UPDATE_FREQUENCY = 4
+    GAMMA = 5
+    P_DECAY = 6
+    P_MIN = 7
+    LAYERS = 8
+    N_PARAMETERS = 9
 
 
 def dqn(env, hyper_parameters):
+    assert(len(hyper_parameters) == HyperParameters.N_PARAMETERS)
     # Hyper parameters
-    train_seconds = hyper_parameters['train_seconds']
-    batch_size = hyper_parameters['batch_size']
-    buffer_size = hyper_parameters['buffer_size']
-    learning_rate = hyper_parameters['learning_rate']
-    target_update_frequency = hyper_parameters['target_update_frequency']
-    gamma = hyper_parameters['gamma']
-    p_decay = hyper_parameters['p_decay']
-    p_min = hyper_parameters['p_min']
-    layers = hyper_parameters['layers']
+    train_seconds = hyper_parameters[HyperParameters.TRAIN_SECONDS]
+    batch_size = hyper_parameters[HyperParameters.BATCH_SIZE]
+    buffer_size = hyper_parameters[HyperParameters.BUFFER_SIZE]
+    learning_rate = hyper_parameters[HyperParameters.LEARNING_RATE]
+    target_update_frequency = hyper_parameters[HyperParameters.TARGET_UPDATE_FREQUENCY]
+    gamma = hyper_parameters[HyperParameters.GAMMA]
+    p_decay = hyper_parameters[HyperParameters.P_DECAY]
+    p_min = hyper_parameters[HyperParameters.P_MIN]
+    layers = hyper_parameters[HyperParameters.LAYERS]
 
     buffer = ReplayBuffer(buffer_size)
     agent = Agent(layers, learning_rate, gamma, env.device)

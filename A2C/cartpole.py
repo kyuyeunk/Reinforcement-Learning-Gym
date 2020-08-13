@@ -1,7 +1,7 @@
 import torch
 import numpy
 from shared.gym_env import Environment
-from A2C.a2c import a2c
+from A2C.a2c import a2c, HyperParameters
 
 
 def main():
@@ -12,12 +12,12 @@ def main():
 
     # Hyper parameters
     hyper_parameters = {
-        'train_seconds': 60 * 60,
-        'actor_learning_rate': 0.00005,
-        'critic_learning_rate': 0.0003,
-        'gamma': 0.99,
-        'actor_layers': [n_inputs, 256, n_outputs],
-        'critic_layers': [n_inputs, 256, 1]
+        HyperParameters.TRAIN_SECONDS: 60 * 60,
+        HyperParameters.ACTOR_LEARNING_RATE: 0.00005,
+        HyperParameters.CRITIC_LEARNING_RATE: 0.0003,
+        HyperParameters.GAMMA: 0.99,
+        HyperParameters.ACTOR_LAYERS: [n_inputs, 256, n_outputs],
+        HyperParameters.CRITIC_LAYERS: [n_inputs, 256, 1]
     }
 
     a2c(env, hyper_parameters)

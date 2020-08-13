@@ -3,15 +3,28 @@ from datetime import datetime
 import time
 from A2C.model import Agent
 from shared.tensorboard_wrapper import TensorboardWrapper
+from enum import IntEnum
+
+
+class HyperParameters(IntEnum):
+    TRAIN_SECONDS = 0
+    ACTOR_LEARNING_RATE = 1
+    CRITIC_LEARNING_RATE = 2
+    GAMMA = 3
+    ACTOR_LAYERS = 4
+    CRITIC_LAYERS = 5
+    N_PARAMETERS = 6
 
 
 def a2c(env, hyper_parameters):
-    train_seconds = hyper_parameters['train_seconds']
-    actor_learning_rate = hyper_parameters['actor_learning_rate']
-    critic_learning_rate = hyper_parameters['critic_learning_rate']
-    gamma = hyper_parameters['gamma']
-    actor_layers = hyper_parameters['actor_layers']
-    critic_layers = hyper_parameters['critic_layers']
+    assert(len(hyper_parameters) == HyperParameters.N_PARAMETERS)
+    # Hyper parameters
+    train_seconds = hyper_parameters[HyperParameters.TRAIN_SECONDS]
+    actor_learning_rate = hyper_parameters[HyperParameters.ACTOR_LEARNING_RATE]
+    critic_learning_rate = hyper_parameters[HyperParameters.CRITIC_LEARNING_RATE]
+    gamma = hyper_parameters[HyperParameters.GAMMA]
+    actor_layers = hyper_parameters[HyperParameters.ACTOR_LAYERS]
+    critic_layers = hyper_parameters[HyperParameters.CRITIC_LAYERS]
 
     agent = Agent(actor_layers, critic_layers, actor_learning_rate, critic_learning_rate, gamma, env.device)
 

@@ -1,7 +1,7 @@
 import torch
 import numpy
 from shared.gym_env import Environment
-from DQN.dqn import dqn
+from DQN.dqn import dqn, HyperParameters
 
 
 def main():
@@ -12,15 +12,15 @@ def main():
 
     # Hyper parameters
     hyper_parameters = {
-        'train_seconds': 60 * 60,
-        'batch_size': 2048,
-        'buffer_size': 500000,
-        'learning_rate': 0.00005,
-        'target_update_frequency': 2048,
-        'gamma': 0.99,
-        'p_decay': 0.001,
-        'p_min': 0.05,
-        'layers': [n_inputs, 256, n_outputs]
+        HyperParameters.TRAIN_SECONDS: 60 * 60,
+        HyperParameters.BATCH_SIZE: 2048,
+        HyperParameters.BUFFER_SIZE: 500000,
+        HyperParameters.LEARNING_RATE: 0.00005,
+        HyperParameters.TARGET_UPDATE_FREQUENCY: 2048,
+        HyperParameters.GAMMA: 0.99,
+        HyperParameters.P_DECAY: 0.001,
+        HyperParameters.P_MIN: 0.05,
+        HyperParameters.LAYERS: [n_inputs, 256, n_outputs]
     }
 
     dqn(env, hyper_parameters)
