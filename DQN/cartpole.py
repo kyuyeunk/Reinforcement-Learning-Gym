@@ -12,7 +12,7 @@ def main():
 
     # Hyper parameters
     hyper_parameters = {
-        HyperParameters.TRAIN_SECONDS: 60 * 60,
+        HyperParameters.TRAIN_EPISODES: 2000,
         HyperParameters.BATCH_SIZE: 2048,
         HyperParameters.BUFFER_SIZE: 500000,
         HyperParameters.LEARNING_RATE: 0.00005,

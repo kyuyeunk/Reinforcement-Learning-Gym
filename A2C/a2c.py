@@ -7,7 +7,7 @@ from enum import IntEnum
 
 
 class HyperParameters(IntEnum):
-    TRAIN_SECONDS = 0
+    TRAIN_EPISODES = 0
     ACTOR_LEARNING_RATE = 1
     CRITIC_LEARNING_RATE = 2
     GAMMA = 3
@@ -19,7 +19,7 @@ class HyperParameters(IntEnum):
 def a2c(env, hyper_parameters):
     assert(len(hyper_parameters) == HyperParameters.N_PARAMETERS)
     # Hyper parameters
-    train_seconds = hyper_parameters[HyperParameters.TRAIN_SECONDS]
+    train_episodes = hyper_parameters[HyperParameters.TRAIN_EPISODES]
     actor_learning_rate = hyper_parameters[HyperParameters.ACTOR_LEARNING_RATE]
     critic_learning_rate = hyper_parameters[HyperParameters.CRITIC_LEARNING_RATE]
     gamma = hyper_parameters[HyperParameters.GAMMA]
@@ -35,12 +35,10 @@ def a2c(env, hyper_parameters):
     tensorboard_writer = TensorboardWrapper(now_str)
 
     score = 0
-    epoch = 0
+    episode = 0
 
     prev_state = env.reset()
-    now = time.time()
-    start_time = now
-    while now - start_time < train_seconds:
+    while episode < train_episodes:
         tq.update(1)
 
         action = agent.decide(prev_state)
@@ -55,14 +53,11 @@ def a2c(env, hyper_parameters):
 
         if done:
             prev_state = env.reset()
-            tensorboard_writer.save_scalar('score', score, epoch)
+            tensorboard_writer.save_scalar('score', score, episode)
 
-            epoch += 1
+            episode += 1
             score = 0
         else:
             prev_state = next_state
-
-
-        now = time.time()
 
     return
