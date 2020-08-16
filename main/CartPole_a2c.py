@@ -22,6 +22,8 @@ def main():
 
     a2c(env, hyper_parameters)
 
+    return
+
 
 if __name__ == "__main__":
     main()
