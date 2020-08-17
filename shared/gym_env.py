@@ -23,7 +23,7 @@ class Environment:
         observation, reward, done, info = self.env.step(action)
         observation = data_to_torch(observation, torch.float32, self.device).flatten()
         reward = data_to_torch([reward], torch.float32, self.device)
-        done = data_to_torch(done, torch.bool, self.device)
+        done = data_to_torch([done], torch.bool, self.device)
         return observation, reward, done, info
 
     def close(self):

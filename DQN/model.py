@@ -55,7 +55,7 @@ class Agent:
         self.optimizer.zero_grad()
         train_q_val = self.train_model(states).gather(dim=1, index=actions)
 
-        target_q_val_next = (self.target_model(next_states).max(dim=1)[0] * mask).unsqueeze(-1)
+        target_q_val_next = self.target_model(next_states).max(dim=1)[0].unsqueeze(-1) * mask
         target_q_val = rewards + self.gamma * target_q_val_next
 
         loss = self.criterion(train_q_val, target_q_val)
