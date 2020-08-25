@@ -72,8 +72,8 @@ class Agent:
 
             advantage = 0
             advantages = []
-            for delta in reversed(deltas):
-                advantage = delta.item() + self.gamma * self.lmbda * advantage
+            for i in reversed(range(self.batch_size)):
+                advantage = deltas[i].item() + self.gamma * self.lmbda * mask[i].item() * advantage
                 advantages.append([advantage])
 
             advantages.reverse()
@@ -88,7 +88,7 @@ class Agent:
             actor_loss = -torch.min(lhs, rhs).mean()
             critic_loss = F.mse_loss(values, target_values)
 
-            loss = actor_loss + critic_loss
+            loss = actor_loss + 0.5 * critic_loss
 
             self.optimizer.zero_grad()
             loss.backward()
@@ -99,9 +99,6 @@ class Agent:
     def store_history(self, state, action, action_prob, reward, next_state, done):
         tmp = History(state, action, action_prob, reward, next_state, done)
         self.buffer.append(tmp)
-
-    def reset_history(self):
-        self.buffer = []
 
     def merge_samples(self):
         samples = self.buffer
@@ -114,12 +111,9 @@ class Agent:
         mask = torch.stack([s.done for s in samples])
         mask = (mask == False)
 
-        self.reset_history()
+        self.buffer = []
         return states, last_state, actions, actions_prob, rewards, mask
 
     def is_buffer_full(self):
         return len(self.buffer) == self.batch_size
-
-    def is_buffer_empty(self):
-        return len(self.buffer) == 0
 

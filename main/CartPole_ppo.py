@@ -10,8 +10,8 @@ def main():
         HyperParameters.LAYERS: [256],
         HyperParameters.GAMMA: 0.99,
         HyperParameters.LAMBDA: 0.95,
-        HyperParameters.EPS: 0.1,
-        HyperParameters.BATCH_SIZE: 20,
+        HyperParameters.EPS: 0.2,
+        HyperParameters.BATCH_SIZE: 32,
         HyperParameters.K: 3
     }
 
