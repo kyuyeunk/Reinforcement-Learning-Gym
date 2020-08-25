@@ -3,8 +3,8 @@ import torchvision
 
 
 class TensorboardWrapper:
-    def __init__(self, now_str):
-        self.writer = SummaryWriter("runs/game-" + now_str)
+    def __init__(self, game, algorithm, now_str):
+        self.writer = SummaryWriter("runs/{}_{}_{}".format(game, algorithm, now_str))
 
     def save_images(self, torch_array, name, epoch):
         for i in range(torch_array.shape[1]):

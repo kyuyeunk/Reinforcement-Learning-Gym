@@ -1,20 +1,13 @@
-import torch
-import numpy
-from shared.gym_env import Environment
 from PPO.ppo import ppo, HyperParameters
 
 
 def main():
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    env = Environment('CartPole-v1', device)
-    n_inputs = numpy.prod(env.get_shape_observations())
-    n_outputs = env.get_n_actions()
-
+    game = 'CartPole-v1'
     # Hyper parameters
     hyper_parameters = {
         HyperParameters.TRAIN_EPISODES: 2000,
         HyperParameters.LEARNING_RATE: 0.004,
-        HyperParameters.LAYERS: [n_inputs, 256, n_outputs],
+        HyperParameters.LAYERS: [256],
         HyperParameters.GAMMA: 0.99,
         HyperParameters.LAMBDA: 0.95,
         HyperParameters.EPS: 0.1,
@@ -22,7 +15,7 @@ def main():
         HyperParameters.K: 3
     }
 
-    ppo(env, hyper_parameters)
+    ppo(game, hyper_parameters)
 
     return
 

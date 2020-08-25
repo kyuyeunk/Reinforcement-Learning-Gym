@@ -1,15 +1,8 @@
-import torch
-import numpy
-from shared.gym_env import Environment
 from DQN.dqn import dqn, HyperParameters
 
 
 def main():
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    env = Environment('CartPole-v1', device)
-    n_inputs = numpy.prod(env.get_shape_observations())
-    n_outputs = env.get_n_actions()
-
+    game = 'CartPole-v1'
     # Hyper parameters
     hyper_parameters = {
         HyperParameters.TRAIN_EPISODES: 2000,
@@ -20,10 +13,10 @@ def main():
         HyperParameters.GAMMA: 0.99,
         HyperParameters.P_DECAY: 0.001,
         HyperParameters.P_MIN: 0.05,
-        HyperParameters.LAYERS: [n_inputs, 256, n_outputs]
+        HyperParameters.LAYERS: [256]
     }
 
-    dqn(env, hyper_parameters)
+    dqn(game, hyper_parameters)
 
     return
 

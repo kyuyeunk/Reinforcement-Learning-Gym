@@ -4,6 +4,8 @@ from datetime import datetime
 from PPO.model import Agent
 from shared.tensorboard_wrapper import TensorboardWrapper
 from enum import IntEnum
+from shared.gym_env import Environment
+import numpy
 
 
 class HyperParameters(IntEnum):
@@ -18,7 +20,7 @@ class HyperParameters(IntEnum):
     N_PARAMETERS = 8
 
 
-def ppo(env, hyper_parameters):
+def ppo(game, hyper_parameters):
     assert(len(hyper_parameters) == HyperParameters.N_PARAMETERS)
     # Hyper parameters
     train_episodes = hyper_parameters[HyperParameters.TRAIN_EPISODES]
@@ -30,18 +32,27 @@ def ppo(env, hyper_parameters):
     eps = hyper_parameters[HyperParameters.EPS]
     k = hyper_parameters[HyperParameters.K]
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    env = Environment(game, device)
+    n_inputs = numpy.prod(env.get_shape_observations())
+    n_outputs = env.get_n_actions()
+
+    layers = [n_inputs] + layers + [n_outputs]
     agent = Agent(layers, learning_rate, gamma, lmbda, eps, k, batch_size, env.device)
 
     tq = tqdm()
 
     now = datetime.now()
     now_str = now.strftime("%y%m%d-%H%M")
-    tensorboard_writer = TensorboardWrapper(now_str)
+    tensorboard_writer = TensorboardWrapper(game, "ppo", now_str)
 
+    log_interval = 20
+    scores = []
     score = 0
     episode = 0
     average_prob = []
     steps = 0
+    start = now.timestamp()
 
     prev_state = env.reset()
     while episode < train_episodes:
@@ -57,21 +68,25 @@ def ppo(env, hyper_parameters):
 
         if agent.is_buffer_full():
             actor_loss, critic_loss = agent.train()
-            tensorboard_writer.save_scalar('actor_loss', actor_loss, env.total_steps)
-            tensorboard_writer.save_scalar('critic_loss', critic_loss, env.total_steps)
+            tensorboard_writer.save_scalar('loss/ppo_actor', actor_loss, env.total_steps)
+            tensorboard_writer.save_scalar('loss/ppo_critic', critic_loss, env.total_steps)
 
         score += reward.item()
         average_prob.append(prob[action])
 
         if done:
-            if not agent.is_buffer_empty():
-                agent.train()
+            tensorboard_writer.save_scalar('score', score, episode)
+            tensorboard_writer.save_scalar('exploration/prob', sum(average_prob)/len(average_prob), episode)
+            tensorboard_writer.save_scalar('etc/steps', steps, episode)
+            now = datetime.now().timestamp()
+            tensorboard_writer.save_scalar('etc/elapsed_time', now - start, episode)
+
+            scores.append(score)
+            if episode % log_interval == 0:
+                print("Episode: {} Rewards: {:.1f} Max: {:.1f} Min: {:.1f}".format(episode, sum(scores)/len(scores), max(scores), min(scores)))
+                scores = []
 
             prev_state = env.reset()
-            tensorboard_writer.save_scalar('score', score, episode)
-
-            tensorboard_writer.save_scalar('prob', sum(average_prob)/len(average_prob), episode)
-            tensorboard_writer.save_scalar('steps', steps, episode)
             steps = 0
             average_prob = []
             episode += 1

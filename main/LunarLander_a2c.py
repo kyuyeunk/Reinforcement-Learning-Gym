@@ -1,26 +1,19 @@
-import torch
-import numpy
-from shared.gym_env import Environment
 from A2C.a2c import a2c, HyperParameters
 
 
 def main():
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    env = Environment('LunarLander-v2', device)
-    n_inputs = numpy.prod(env.get_shape_observations())
-    n_outputs = env.get_n_actions()
-
+    game = 'LunarLander-v2'
     # Hyper parameters
     hyper_parameters = {
         HyperParameters.TRAIN_EPISODES: 2000,
         HyperParameters.ACTOR_LEARNING_RATE: 0.00001,
         HyperParameters.CRITIC_LEARNING_RATE: 0.0002,
         HyperParameters.GAMMA: 0.99,
-        HyperParameters.ACTOR_LAYERS: [n_inputs, 256, 256, 128, n_outputs],
-        HyperParameters.CRITIC_LAYERS: [n_inputs, 256, 256, 128, 1]
+        HyperParameters.ACTOR_LAYERS: [256, 256, 128],
+        HyperParameters.CRITIC_LAYERS: [256, 256, 128]
     }
 
-    a2c(env, hyper_parameters)
+    a2c(game, hyper_parameters)
 
     return
 

@@ -29,18 +29,11 @@ class Agent:
         self.critic_optimizer = optim.Adam(self.critic_model.parameters(), lr=critic_learning_rate)
 
         self.gamma = gamma
-        self.log_prob = None
 
-    def decide(self, state):
-        prob = F.softmax(self.actor_model(state), dim=-1)
-        dist = torch.distributions.Categorical(prob)
-        action = dist.sample()
+    def prob(self, state):
+        return F.softmax(self.actor_model(state), dim=-1)
 
-        self.log_prob = torch.log(prob[action])
-
-        return action.item()
-
-    def train(self, state, reward, new_state, done):
+    def train(self, state, action_prob, reward, new_state, done):
         self.actor_model.zero_grad()
         self.critic_model.zero_grad()
 
@@ -49,7 +42,7 @@ class Agent:
 
         advantage = reward + self.gamma * new_value - value
 
-        actor_loss = -self.log_prob * advantage.item()
+        actor_loss = -torch.log(action_prob) * advantage.item()
         critic_loss = pow(advantage, 2)
 
         actor_loss.backward()
