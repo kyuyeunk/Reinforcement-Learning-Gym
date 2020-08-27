@@ -1,19 +1,19 @@
-from DQN.dqn import dqn, HyperParameters
+from DQN.dqn import dqn, DQNHyperParameters
 
 
 def main():
     game = 'CartPole-v1'
     # Hyper parameters
     hyper_parameters = {
-        HyperParameters.TRAIN_EPISODES: 2000,
-        HyperParameters.BATCH_SIZE: 2048,
-        HyperParameters.BUFFER_SIZE: 500000,
-        HyperParameters.LEARNING_RATE: 0.00005,
-        HyperParameters.TARGET_UPDATE_FREQUENCY: 2048,
-        HyperParameters.GAMMA: 0.99,
-        HyperParameters.P_DECAY: 0.001,
-        HyperParameters.P_MIN: 0.05,
-        HyperParameters.LAYERS: [256]
+        DQNHyperParameters.TRAIN_EPISODES: 2000,
+        DQNHyperParameters.BATCH_SIZE: 2048,
+        DQNHyperParameters.BUFFER_SIZE: 500000,
+        DQNHyperParameters.LEARNING_RATE: 0.00005,
+        DQNHyperParameters.TARGET_UPDATE_FREQUENCY: 2048,
+        DQNHyperParameters.GAMMA: 0.99,
+        DQNHyperParameters.P_DECAY: 0.001,
+        DQNHyperParameters.P_MIN: 0.05,
+        DQNHyperParameters.LAYERS: [256]
     }
 
     dqn(game, hyper_parameters)
