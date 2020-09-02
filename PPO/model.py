@@ -18,16 +18,9 @@ class Model(nn.Module):
     def __init__(self, layers):
         super().__init__()
         assert(len(layers) >= 2)
-
-        networks = []
-        for i in range(0, len(layers) - 2):
-            networks.append(nn.Linear(layers[i], layers[i+1]))
-            networks.append(nn.ReLU())
-
-        actor_networks = networks + [nn.Linear(layers[-2], layers[-1])]
+        actor_networks = layers
         self.actor_net = nn.Sequential(*actor_networks)
-
-        critic_networks = networks + [nn.Linear(layers[-2], 1)]
+        critic_networks = layers[:-1] + [nn.Linear(layers[-1].in_features, 1)]
         self.critic_net = nn.Sequential(*critic_networks)
 
     def forward(self, x):
@@ -61,7 +54,7 @@ class Agent:
         states, last_state, actions, actions_prob, rewards, mask = self.merge_samples()
 
         for _ in range(self.k):
-            all_states = torch.cat((states, last_state.unsqueeze(0)))
+            all_states = torch.cat((states, last_state))
             all_values = self.model.value(all_states)
 
             values = all_values[:-1]
@@ -102,13 +95,13 @@ class Agent:
 
     def merge_samples(self):
         samples = self.buffer
-        states = torch.stack([s.state for s in samples])
-        actions = torch.stack([s.action for s in samples])
-        actions_prob = torch.stack([s.action_prob for s in samples])
-        rewards = torch.stack([s.reward for s in samples])
+        states = torch.cat([s.state for s in samples])
+        actions = torch.cat([s.action for s in samples])
+        actions_prob = torch.cat([s.action_prob for s in samples])
+        rewards = torch.cat([s.reward for s in samples])
         last_state = samples[-1].next_state
 
-        mask = torch.stack([s.done for s in samples])
+        mask = torch.cat([s.done for s in samples])
         mask = (mask == False)
 
         self.buffer = []

@@ -1,8 +1,6 @@
 import torch
 from A2C.model import Agent
 from enum import IntEnum
-import numpy
-from shared.gym_env import Environment
 from shared import utils
 
 
@@ -16,7 +14,7 @@ class A2CHyperParameters(IntEnum):
     N_PARAMETERS = 6
 
 
-def a2c(game, hyper_parameters):
+def a2c(env, hyper_parameters):
     assert(len(hyper_parameters) == A2CHyperParameters.N_PARAMETERS)
     # Hyper parameters
     train_episodes = hyper_parameters[A2CHyperParameters.TRAIN_EPISODES]
@@ -26,30 +24,24 @@ def a2c(game, hyper_parameters):
     actor_layers = hyper_parameters[A2CHyperParameters.ACTOR_LAYERS]
     critic_layers = hyper_parameters[A2CHyperParameters.CRITIC_LAYERS]
 
-    # Initialize device, environment, and agent
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    env = Environment(game, device)
-    n_inputs = numpy.prod(env.get_shape_observations())
-    n_outputs = env.get_n_actions()
-
-    actor_layers = [n_inputs] + actor_layers + [n_outputs]
-    critic_layers = [n_inputs] + critic_layers + [1]
-    agent = Agent(actor_layers, critic_layers, actor_learning_rate, critic_learning_rate, gamma, device)
+    # Initialize agent
+    agent = Agent(actor_layers, critic_layers, actor_learning_rate, critic_learning_rate, gamma, env.device)
 
     # Initialize statistics related variables
-    tensorboard_writer, tq, stats = utils.initialize_logging(game, utils.Algorithms.A2C)
+    tensorboard_writer, tq, stats = utils.initialize_logging(env.get_game_name(), utils.Algorithms.A2C)
 
     prev_state = env.reset()
     while stats.episode < train_episodes:
         tq.update(1)
 
-        prob = agent.prob(prev_state)
+        prob = agent.prob(prev_state)[0]
         dist = torch.distributions.Categorical(prob)
         action = dist.sample()
 
         next_state, reward, done, info = env.step(action.item())
 
-        actor_loss, critic_loss = agent.train(prev_state, prob[action], reward, next_state, done)
+        actor_loss, critic_loss = agent.train(prev_state, prob[action].unsqueeze(0).unsqueeze(0),
+                                              reward, next_state, done)
 
         tensorboard_writer.save_scalar('loss/a2c_actor', actor_loss, env.total_steps)
         tensorboard_writer.save_scalar('loss/a2c_critic', critic_loss, env.total_steps)

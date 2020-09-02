@@ -7,14 +7,7 @@ class Model(nn.Module):
     def __init__(self, layers):
         super().__init__()
         assert(len(layers) >= 2)
-
-        networks = []
-        for i in range(0, len(layers) - 2):
-            networks.append(nn.Linear(layers[i], layers[i+1]))
-            networks.append(nn.ReLU())
-        networks.append(nn.Linear(layers[-2], layers[-1]))
-
-        self.net = nn.Sequential(*networks)
+        self.net = nn.Sequential(*layers)
 
     def forward(self, x):
         return self.net(x)

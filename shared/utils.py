@@ -12,13 +12,13 @@ class Algorithms(Enum):
 
 
 class Stats:
-    def __init__(self, algorithm, log_interval, precision):
+    def __init__(self, algorithm, log_interval, precision, start):
         self.scores = []
         self.average_prob = []
         self.score = 0
         self.episode = 0
         self.steps = 0
-        self.start = 0
+        self.start = start
         self.algorithm = algorithm
 
         self.log_interval = log_interval
@@ -41,7 +41,6 @@ class Stats:
 
         self.episode += 1
         self.steps = 0
-        self.start = now
         self.score = 0
         self.average_prob = []
 
@@ -59,8 +58,7 @@ def initialize_logging(game, algorithm):
     now_str = now.strftime("%y%m%d-%H%M")
     tensorboard_writer = TensorboardWrapper(game, algorithm.value, now_str)
 
-    stats = Stats(algorithm=algorithm, log_interval=20, precision=1)
-    stats.start = now.timestamp()
+    stats = Stats(algorithm=algorithm, log_interval=20, precision=1, start=now.timestamp())
 
     return tensorboard_writer, tq, stats
 

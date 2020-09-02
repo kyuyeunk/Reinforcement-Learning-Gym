@@ -3,8 +3,6 @@ import random
 from DQN.replay_buffer import ReplayBuffer
 from DQN.model import Agent
 from enum import IntEnum
-import numpy
-from shared.gym_env import Environment
 from shared import utils
 
 
@@ -21,7 +19,7 @@ class DQNHyperParameters(IntEnum):
     N_PARAMETERS = 9
 
 
-def dqn(game, hyper_parameters):
+def dqn(env, hyper_parameters):
     assert(len(hyper_parameters) == DQNHyperParameters.N_PARAMETERS)
     # Hyper parameters
     train_episodes = hyper_parameters[DQNHyperParameters.TRAIN_EPISODES]
@@ -34,18 +32,12 @@ def dqn(game, hyper_parameters):
     p_min = hyper_parameters[DQNHyperParameters.P_MIN]
     layers = hyper_parameters[DQNHyperParameters.LAYERS]
 
-    # Initialize device, environment, and agent
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    env = Environment(game, device)
-    n_inputs = numpy.prod(env.get_shape_observations())
-    n_outputs = env.get_n_actions()
-
-    layers = [n_inputs] + layers + [n_outputs]
-    agent = Agent(layers, learning_rate, gamma, device)
+    # Initialize agent
+    agent = Agent(layers, learning_rate, gamma, env.device)
     buffer = ReplayBuffer(buffer_size)
 
     # Initialize statistics related variables
-    tensorboard_writer, tq, stats = utils.initialize_logging(game, utils.Algorithms.DQN)
+    tensorboard_writer, tq, stats = utils.initialize_logging(env.get_game_name(), utils.Algorithms.DQN)
 
     prev_state = env.reset()
     while stats.episode < train_episodes:
@@ -58,7 +50,7 @@ def dqn(game, hyper_parameters):
             action = random.randrange(env.get_n_actions())
 
         next_state, reward, done, info = env.step(action)
-        buffer.insert(prev_state, utils.data_to_torch([action], torch.long, env.device), reward, next_state, done)
+        buffer.insert(prev_state, utils.data_to_torch([[action]], torch.long, env.device), reward, next_state, done)
 
         samples = buffer.sample(batch_size)
         if samples:
