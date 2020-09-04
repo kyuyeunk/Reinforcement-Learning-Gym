@@ -3,6 +3,7 @@ from datetime import datetime
 from tqdm import tqdm
 from shared.tensorboard_wrapper import TensorboardWrapper
 from enum import Enum
+import pickle
 
 
 class Algorithms(Enum):
@@ -18,7 +19,9 @@ class Stats:
         self.score = 0
         self.episode = 0
         self.steps = 0
-        self.start = start
+        self.previous_steps = 0
+        self.previous_time = start
+        self.passed_time = 0
         self.algorithm = algorithm
 
         self.log_interval = log_interval
@@ -30,17 +33,21 @@ class Stats:
             self.print_scores()
 
         now = datetime.now().timestamp()
+        self.passed_time += now - self.previous_time
+        passed_steps = self.steps - self.previous_steps
+
         data = {}
         if self.algorithm == Algorithms.DQN:
-            data = {'score': self.score, 'etc/steps': self.steps, 'etc/elapsed_time': now - self.start}
+            data = {'score': self.score, 'etc/steps': passed_steps, 'etc/elapsed_time': self.passed_time}
         elif self.algorithm == Algorithms.A2C or self.algorithm == Algorithms.PPO:
-            data = {'score': self.score, 'etc/steps': self.steps, 'etc/elapsed_time': now - self.start,
+            data = {'score': self.score, 'etc/steps': passed_steps, 'etc/elapsed_time': self.passed_time,
                     'exploration/prob': sum(self.average_prob) / len(self.average_prob)}
 
         tensorboard_writer.save_scalars(data, self.episode)
 
+        self.previous_time = now
+        self.previous_steps = self.steps
         self.episode += 1
-        self.steps = 0
         self.score = 0
         self.average_prob = []
 
@@ -50,15 +57,32 @@ class Stats:
                       max(self.scores), min(self.scores), prec=self.precision))
         self.scores = []
 
+    def save_stat(self, game, timestamp):
+        time_str = timestamp.strftime("%y%m%d-%H%M")
+        pickle.dump(self, open('runs/{}_{}_{}/stat.st'.format(game, self.algorithm.value, time_str), 'wb'))
 
-def initialize_logging(game, algorithm):
+    @staticmethod
+    def load_stat(game, algorithm, timestamp, start_time):
+        stats = pickle.load(open('runs/{}_{}_{}/stat.st'.format(game, algorithm, timestamp), 'rb'))
+
+        stats.score = 0
+        stats.average_prob = []
+        stats.previous_steps = stats.steps
+        stats.previous_time = start_time
+
+        return stats
+
+
+def initialize_logging(game, algorithm, log_interval, start_time, load_timestamp):
     tq = tqdm()
 
-    now = datetime.now()
-    now_str = now.strftime("%y%m%d-%H%M")
-    tensorboard_writer = TensorboardWrapper(game, algorithm.value, now_str)
-
-    stats = Stats(algorithm=algorithm, log_interval=20, precision=1, start=now.timestamp())
+    if load_timestamp is not None:
+        tensorboard_writer = TensorboardWrapper(game, algorithm.value, load_timestamp)
+        stats = Stats.load_stat(game, algorithm.value, load_timestamp, start_time.timestamp())
+    else:
+        now_str = start_time.strftime("%y%m%d-%H%M")
+        tensorboard_writer = TensorboardWrapper(game, algorithm.value, now_str)
+        stats = Stats(algorithm=algorithm, log_interval=log_interval, precision=1, start=start_time.timestamp())
 
     return tensorboard_writer, tq, stats
 

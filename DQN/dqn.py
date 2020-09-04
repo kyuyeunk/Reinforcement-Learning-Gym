@@ -4,6 +4,7 @@ from DQN.replay_buffer import ReplayBuffer
 from DQN.model import Agent
 from enum import IntEnum
 from shared import utils
+from datetime import datetime
 
 
 class DQNHyperParameters(IntEnum):
@@ -19,7 +20,7 @@ class DQNHyperParameters(IntEnum):
     N_PARAMETERS = 9
 
 
-def dqn(env, hyper_parameters):
+def dqn(env, hyper_parameters, load_timestamp=None):
     assert(len(hyper_parameters) == DQNHyperParameters.N_PARAMETERS)
     # Hyper parameters
     train_episodes = hyper_parameters[DQNHyperParameters.TRAIN_EPISODES]
@@ -34,11 +35,18 @@ def dqn(env, hyper_parameters):
 
     # Initialize agent
     agent = Agent(layers, learning_rate, gamma, env.device)
+    if load_timestamp is not None:
+        agent.load_model(env.get_game_name(), load_timestamp)
     buffer = ReplayBuffer(buffer_size)
 
     # Initialize statistics related variables
-    tensorboard_writer, tq, stats = utils.initialize_logging(env.get_game_name(), utils.Algorithms.DQN)
+    start_time = datetime.now()
+    log_interval = 20
+    tensorboard_writer, tq, stats = utils.initialize_logging(env.get_game_name(), utils.Algorithms.DQN,
+                                                             log_interval, start_time, load_timestamp)
 
+    if load_timestamp is not None:
+        start_time = datetime.strptime(load_timestamp, "%y%m%d-%H%M")
     prev_state = env.reset()
     while stats.episode < train_episodes:
         tq.update(1)
@@ -55,17 +63,20 @@ def dqn(env, hyper_parameters):
         samples = buffer.sample(batch_size)
         if samples:
             loss = agent.train(samples)
-            tensorboard_writer.save_scalar('loss/dqn', loss, env.total_steps)
-            tensorboard_writer.save_scalar('exploration/eps', eps, env.total_steps)
+            tensorboard_writer.save_scalar('loss/dqn', loss, stats.steps)
+            tensorboard_writer.save_scalar('exploration/eps', eps, stats.steps)
 
         stats.score += reward.item()
+        stats.steps += 1
 
         if done:
+            if stats.episode % log_interval == 0:
+                agent.save_model(env.get_game_name(), start_time)
+                stats.save_stat(env.get_game_name(), start_time)
             stats.done_update_stats(tensorboard_writer)
             prev_state = env.reset()
         else:
             prev_state = next_state
-            stats.steps += 1
 
         if env.total_steps % target_update_frequency == 0:
             agent.update_target_model()

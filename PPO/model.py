@@ -110,3 +110,10 @@ class Agent:
     def is_buffer_full(self):
         return len(self.buffer) == self.batch_size
 
+    def save_model(self, game, timestamp):
+        time_str = timestamp.strftime("%y%m%d-%H%M")
+        torch.save(self.model.state_dict(), 'runs/{}_ppo_{}/model.pt'.format(game, time_str))
+
+    def load_model(self, game, timestamp):
+        self.model.load_state_dict(torch.load('runs/{}_ppo_{}/model.pt'.format(game, timestamp)))
+

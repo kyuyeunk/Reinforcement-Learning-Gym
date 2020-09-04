@@ -57,3 +57,12 @@ class Agent:
         self.optimizer.step()
 
         return loss
+
+    def save_model(self, game, timestamp):
+        time_str = timestamp.strftime("%y%m%d-%H%M")
+        torch.save(self.target_model.state_dict(), 'runs/{}_dqn_{}/target.pt'.format(game, time_str))
+        torch.save(self.train_model.state_dict(), 'runs/{}_dqn_{}/train.pt'.format(game, time_str))
+
+    def load_model(self, game, timestamp):
+        self.target_model.load_state_dict(torch.load('runs/{}_dqn_{}/target.pt'.format(game, timestamp)))
+        self.train_model.load_state_dict(torch.load('runs/{}_dqn_{}/train.pt'.format(game, timestamp)))

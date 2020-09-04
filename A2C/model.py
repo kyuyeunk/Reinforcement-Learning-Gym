@@ -45,3 +45,12 @@ class Agent:
         self.critic_optimizer.step()
 
         return actor_loss, critic_loss
+
+    def save_model(self, game, timestamp):
+        time_str = timestamp.strftime("%y%m%d-%H%M")
+        torch.save(self.actor_model.state_dict(), 'runs/{}_a2c_{}/actor.pt'.format(game, time_str))
+        torch.save(self.critic_model.state_dict(), 'runs/{}_a2c_{}/critic.pt'.format(game, time_str))
+
+    def load_model(self, game, timestamp):
+        self.actor_model.load_state_dict(torch.load('runs/{}_a2c_{}/actor.pt'.format(game, timestamp)))
+        self.critic_model.load_state_dict(torch.load('runs/{}_a2c_{}/critic.pt'.format(game, timestamp)))
