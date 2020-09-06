@@ -41,7 +41,7 @@ class Stats:
             data = {'score': self.score, 'etc/steps': passed_steps, 'etc/elapsed_time': self.passed_time}
         elif self.algorithm == Algorithms.A2C or self.algorithm == Algorithms.PPO:
             data = {'score': self.score, 'etc/steps': passed_steps, 'etc/elapsed_time': self.passed_time,
-                    'exploration/prob': sum(self.average_prob) / len(self.average_prob)}
+                    '{}/prob'.format(self.algorithm.value): sum(self.average_prob) / len(self.average_prob)}
 
         tensorboard_writer.save_scalars(data, self.episode)
 

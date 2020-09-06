@@ -51,8 +51,8 @@ def a2c(env, hyper_parameters, load_timestamp=None):
         actor_loss, critic_loss = agent.train(prev_state, prob[action].unsqueeze(0).unsqueeze(0),
                                               reward, next_state, done)
 
-        tensorboard_writer.save_scalar('loss/a2c_actor', actor_loss, stats.steps)
-        tensorboard_writer.save_scalar('loss/a2c_critic', critic_loss, stats.steps)
+        tensorboard_writer.save_scalar('a2c/loss_actor', actor_loss, stats.steps)
+        tensorboard_writer.save_scalar('a2c/loss_critic', critic_loss, stats.steps)
 
         stats.score += reward.item()
         stats.average_prob.append(prob[action].item())

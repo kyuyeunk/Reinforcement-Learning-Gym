@@ -57,7 +57,7 @@ class ImageProcessor:
 
     def write_stack_data(self):
         for i, image in enumerate(self.stack):
-            cv2.imwrite("stack{}.png".format(i), image.cpu().numpy())
+            cv2.imwrite("stack{}.png".format(i), (image * 255).cpu().numpy())
 
     def reset_screen(self):
         self.stack = self.get_start_screen()

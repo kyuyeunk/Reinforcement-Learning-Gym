@@ -57,8 +57,8 @@ def ppo(env, hyper_parameters, load_timestamp=None):
 
         if agent.is_buffer_full():
             actor_loss, critic_loss = agent.train()
-            tensorboard_writer.save_scalar('loss/ppo_actor', actor_loss, stats.steps)
-            tensorboard_writer.save_scalar('loss/ppo_critic', critic_loss, stats.steps)
+            tensorboard_writer.save_scalar('ppo/loss_actor', actor_loss, stats.steps)
+            tensorboard_writer.save_scalar('ppo/loss_critic', critic_loss, stats.steps)
 
         stats.score += reward.item()
         stats.average_prob.append(prob[action].item())

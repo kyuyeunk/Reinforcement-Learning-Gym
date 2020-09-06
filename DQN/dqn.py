@@ -63,8 +63,8 @@ def dqn(env, hyper_parameters, load_timestamp=None):
         samples = buffer.sample(batch_size)
         if samples:
             loss = agent.train(samples)
-            tensorboard_writer.save_scalar('loss/dqn', loss, stats.steps)
-            tensorboard_writer.save_scalar('exploration/eps', eps, stats.steps)
+            tensorboard_writer.save_scalar('dqn/loss', loss, stats.steps)
+            tensorboard_writer.save_scalar('dqn/eps', eps, stats.steps)
 
         stats.score += reward.item()
         stats.steps += 1
