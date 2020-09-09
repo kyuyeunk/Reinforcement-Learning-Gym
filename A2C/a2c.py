@@ -53,9 +53,9 @@ def a2c(env, hyper_parameters, load_timestamp=None):
 
         tensorboard_writer.save_scalar('a2c/loss_actor', actor_loss, stats.steps)
         tensorboard_writer.save_scalar('a2c/loss_critic', critic_loss, stats.steps)
+        tensorboard_writer.save_scalar('a2c/probability', prob[action], stats.steps)
 
         stats.score += reward.item()
-        stats.average_prob.append(prob[action].item())
         stats.steps += 1
 
         if done:

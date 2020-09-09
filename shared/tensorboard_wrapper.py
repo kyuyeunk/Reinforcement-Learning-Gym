@@ -13,10 +13,6 @@ class TensorboardWrapper:
         img = torchvision.utils.make_grid(torch_array[:, :, :, :])
         self.writer.add_image(name, img, epoch)
 
-    def save_scalars(self, data, epoch):
-        for key in data:
-            self.save_scalar(key, data[key], epoch)
-
     def save_scalar(self, name, data, epoch):
         if type(data) == list:
             if len(data) > 0:

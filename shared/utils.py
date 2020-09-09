@@ -15,7 +15,6 @@ class Algorithms(Enum):
 class Stats:
     def __init__(self, algorithm, log_interval, precision, start):
         self.scores = []
-        self.average_prob = []
         self.score = 0
         self.episode = 0
         self.steps = 0
@@ -34,22 +33,16 @@ class Stats:
 
         now = datetime.now().timestamp()
         self.passed_time += now - self.previous_time
-        passed_steps = self.steps - self.previous_steps
+        episode_steps = self.steps - self.previous_steps
 
-        data = {}
-        if self.algorithm == Algorithms.DQN:
-            data = {'score': self.score, 'etc/steps': passed_steps, 'etc/elapsed_time': self.passed_time}
-        elif self.algorithm == Algorithms.A2C or self.algorithm == Algorithms.PPO:
-            data = {'score': self.score, 'etc/steps': passed_steps, 'etc/elapsed_time': self.passed_time,
-                    '{}/prob'.format(self.algorithm.value): sum(self.average_prob) / len(self.average_prob)}
-
-        tensorboard_writer.save_scalars(data, self.episode)
+        tensorboard_writer.save_scalar('score', self.score, self.episode)
+        tensorboard_writer.save_scalar('etc/steps_per_episode', episode_steps, self.episode)
+        tensorboard_writer.save_scalar('etc/elapsed_time', self.passed_time, self.episode)
 
         self.previous_time = now
         self.previous_steps = self.steps
         self.episode += 1
         self.score = 0
-        self.average_prob = []
 
     def print_scores(self):
         print("Episode: {} Rewards: {:.{prec}f} Max: {:.{prec}f} Min: {:.{prec}f}"
@@ -66,7 +59,6 @@ class Stats:
         stats = pickle.load(open('runs/{}_{}_{}/stat.st'.format(game, algorithm, timestamp), 'rb'))
 
         stats.score = 0
-        stats.average_prob = []
         stats.previous_steps = stats.steps
         stats.previous_time = start_time
 
