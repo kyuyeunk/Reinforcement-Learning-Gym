@@ -4,7 +4,7 @@ from shared.utils import data_to_torch
 
 
 class ImageProcessDimension:
-    def __init__(self, height, width, crop_left, crop_right, crop_bottom, crop_top):
+    def __init__(self, height, width, crop_bottom, crop_top, crop_left, crop_right):
         self.height = height
         self.width = width
         self.crop_left = crop_left
