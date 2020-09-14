@@ -3,7 +3,8 @@ from PPO.model import Agent
 from enum import IntEnum
 from shared import utils
 from datetime import datetime
-
+import pickle
+import os
 
 class PPOHyperParameters(IntEnum):
     TRAIN_EPISODES = 0
@@ -17,7 +18,13 @@ class PPOHyperParameters(IntEnum):
     N_PARAMETERS = 8
 
 
-def ppo(env, hyper_parameters, load_timestamp=None):
+def ppo(env, hyper_parameters=None, load_timestamp=None):
+    start_time = datetime.now()
+    if load_timestamp:
+        hyper_parameters = utils.HyperParameterIO.load_hyperparameters(env.get_game_name(), 'ppo', load_timestamp)
+    else:
+        utils.HyperParameterIO.save_hyperparameters(env.get_game_name(), 'ppo', start_time, hyper_parameters)
+
     assert(len(hyper_parameters) == PPOHyperParameters.N_PARAMETERS)
     # Hyper parameters
     train_episodes = hyper_parameters[PPOHyperParameters.TRAIN_EPISODES]
@@ -35,7 +42,6 @@ def ppo(env, hyper_parameters, load_timestamp=None):
         agent.load_model(env.get_game_name(), load_timestamp)
 
     # Initialize statistics related variables
-    start_time = datetime.now()
     log_interval = 20
     tensorboard_writer, tq, stats = utils.initialize_logging(env.get_game_name(), utils.Algorithms.PPO,
                                                              log_interval, start_time, load_timestamp)
@@ -52,8 +58,8 @@ def ppo(env, hyper_parameters, load_timestamp=None):
 
         next_state, reward, done, info = env.step(action.item())
 
-        agent.store_history(prev_state, action.unsqueeze(0).unsqueeze(0),
-                            prob[action].unsqueeze(0).unsqueeze(0), reward, next_state, done)
+        agent.store_history(prev_state, action.view(1, 1),
+                            prob[action].view(1, 1), reward, next_state, done)
 
         if agent.is_buffer_full():
             actor_loss, critic_loss = agent.train()

@@ -20,7 +20,13 @@ class DQNHyperParameters(IntEnum):
     N_PARAMETERS = 9
 
 
-def dqn(env, hyper_parameters, load_timestamp=None):
+def dqn(env, hyper_parameters=None, load_timestamp=None):
+    start_time = datetime.now()
+    if load_timestamp:
+        hyper_parameters = utils.HyperParameterIO.load_hyperparameters(env.get_game_name(), 'dqn', load_timestamp)
+    else:
+        utils.HyperParameterIO.save_hyperparameters(env.get_game_name(), 'dqn', load_timestamp, hyper_parameters)
+
     assert(len(hyper_parameters) == DQNHyperParameters.N_PARAMETERS)
     # Hyper parameters
     train_episodes = hyper_parameters[DQNHyperParameters.TRAIN_EPISODES]
@@ -40,7 +46,6 @@ def dqn(env, hyper_parameters, load_timestamp=None):
     buffer = ReplayBuffer(buffer_size)
 
     # Initialize statistics related variables
-    start_time = datetime.now()
     log_interval = 20
     tensorboard_writer, tq, stats = utils.initialize_logging(env.get_game_name(), utils.Algorithms.DQN,
                                                              log_interval, start_time, load_timestamp)

@@ -4,6 +4,7 @@ from tqdm import tqdm
 from shared.tensorboard_wrapper import TensorboardWrapper
 from enum import Enum
 import pickle
+import os
 
 
 class Algorithms(Enum):
@@ -82,3 +83,17 @@ def initialize_logging(game, algorithm, log_interval, start_time, load_timestamp
 def data_to_torch(data, torch_type, device):
     data = torch.tensor(data, device=device, dtype=torch_type)
     return data
+
+
+class HyperParameterIO:
+    @staticmethod
+    def save_hyperparameters(game, algorithm, time, hyper_parameters):
+        now_str = time.strftime("%y%m%d-%H%M")
+        os.makedirs('runs/{}_{}_{}'.format(game, algorithm, now_str), exist_ok=True)
+        torch.save(hyper_parameters, 'runs/{}_{}_{}/hyperparameters.hp'.
+                   format(game, algorithm, now_str))
+
+    @staticmethod
+    def load_hyperparameters(game, algorithm, timestamp):
+        return torch.load(open('runs/{}_{}_{}/hyperparameters.hp'.
+                               format(game, algorithm, timestamp), 'rb'))

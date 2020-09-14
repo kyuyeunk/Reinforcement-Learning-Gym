@@ -15,7 +15,13 @@ class A2CHyperParameters(IntEnum):
     N_PARAMETERS = 6
 
 
-def a2c(env, hyper_parameters, load_timestamp=None):
+def a2c(env, hyper_parameters=None, load_timestamp=None):
+    start_time = datetime.now()
+    if load_timestamp:
+        hyper_parameters = utils.HyperParameterIO.load_hyperparameters(env.get_game_name(), 'a2c', load_timestamp)
+    else:
+        utils.HyperParameterIO.save_hyperparameters(env.get_game_name(), 'a2c', start_time, hyper_parameters)
+
     assert(len(hyper_parameters) == A2CHyperParameters.N_PARAMETERS)
     # Hyper parameters
     train_episodes = hyper_parameters[A2CHyperParameters.TRAIN_EPISODES]
@@ -31,7 +37,6 @@ def a2c(env, hyper_parameters, load_timestamp=None):
         agent.load_model(env.get_game_name(), load_timestamp)
 
     # Initialize statistics related variables
-    start_time = datetime.now()
     log_interval = 20
     tensorboard_writer, tq, stats = utils.initialize_logging(env.get_game_name(), utils.Algorithms.A2C,
                                                              log_interval, start_time, load_timestamp)
@@ -48,7 +53,7 @@ def a2c(env, hyper_parameters, load_timestamp=None):
 
         next_state, reward, done, info = env.step(action.item())
 
-        actor_loss, critic_loss = agent.train(prev_state, prob[action].unsqueeze(0).unsqueeze(0),
+        actor_loss, critic_loss = agent.train(prev_state, prob[action].view(1, 1),
                                               reward, next_state, done)
 
         tensorboard_writer.save_scalar('a2c/loss_actor', actor_loss, stats.steps)
