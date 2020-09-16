@@ -18,7 +18,7 @@ class Game:
 class GameList(Enum):
     def __new__(cls, name, image_input, image_dimension=None):
         return Game(name, image_input, image_dimension=image_dimension)
-    CartPole = ('CartPole-v1', False, ImageProcessDimension(24, 96, 170, 320, 0, 600))
+    CartPole = ('CartPole-v1', False, ImageProcessDimension(80, 80, 170, 320, 0, 600))
     LunarLander = ('LunarLander-v2', False)
     Pong = ('Pong-v0', True, ImageProcessDimension(32, 40, 34, 194, 16, 144))
 
