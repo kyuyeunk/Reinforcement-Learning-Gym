@@ -16,11 +16,11 @@ def main():
         A2CHyperParameters.ACTOR_LAYERS: [nn.Linear(env.get_n_obs(), 256), nn.ReLU(),
                                           nn.Linear(256, 256), nn.ReLU(),
                                           nn.Linear(256, 128), nn.ReLU(),
-                                          nn.Linear(256, env.get_n_actions())],
+                                          nn.Linear(128, env.get_n_actions())],
         A2CHyperParameters.CRITIC_LAYERS: [nn.Linear(env.get_n_obs(), 256), nn.ReLU(),
                                           nn.Linear(256, 256), nn.ReLU(),
                                           nn.Linear(256, 128), nn.ReLU(),
-                                          nn.Linear(256, 1)],
+                                          nn.Linear(128, 1)],
     }
 
     a2c(env, hyper_parameters)

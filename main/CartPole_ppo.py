@@ -9,7 +9,7 @@ def main():
     env = Environment(GameList.CartPole, device)
     # Hyper parameters
     hyper_parameters = {
-        PPOHyperParameters.TRAIN_EPISODES: 2000,
+        PPOHyperParameters.TRAIN_EPISODES: 1000,
         PPOHyperParameters.LEARNING_RATE: 0.004,
         PPOHyperParameters.LAYERS: [nn.Linear(env.get_n_obs(), 256), nn.ReLU(),
                                     nn.Linear(256, env.get_n_actions())],

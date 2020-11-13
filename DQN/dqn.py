@@ -25,7 +25,7 @@ def dqn(env, hyper_parameters=None, load_timestamp=None):
     if load_timestamp:
         hyper_parameters = utils.HyperParameterIO.load_hyperparameters(env.get_game_name(), 'dqn', load_timestamp)
     else:
-        utils.HyperParameterIO.save_hyperparameters(env.get_game_name(), 'dqn', load_timestamp, hyper_parameters)
+        utils.HyperParameterIO.save_hyperparameters(env.get_game_name(), 'dqn', start_time, hyper_parameters)
 
     assert(len(hyper_parameters) == DQNHyperParameters.N_PARAMETERS)
     # Hyper parameters
