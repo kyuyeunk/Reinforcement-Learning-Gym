@@ -5,11 +5,13 @@ from PPO.ppo import ppo, PPOHyperParameters
 
 
 def main():
+    load_timestamp = None
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     env = Environment(GameList.LunarLander, device)
     # Hyper parameters
     hyper_parameters = {
-        PPOHyperParameters.TRAIN_EPISODES: 10000,
+        PPOHyperParameters.TRAIN_EPISODES: 5000,
         PPOHyperParameters.LEARNING_RATE: 0.001,
         PPOHyperParameters.LAYERS: [nn.Linear(env.get_n_obs(), 128), nn.ReLU(),
                                     nn.Linear(128, 128), nn.ReLU(),
@@ -21,7 +23,7 @@ def main():
         PPOHyperParameters.K: 3
     }
 
-    ppo(env, hyper_parameters)
+    ppo(env, hyper_parameters, load_timestamp)
 
     return
 

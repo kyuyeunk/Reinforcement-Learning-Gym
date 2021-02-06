@@ -20,7 +20,6 @@ class GameList(Enum):
         return Game(name, image_input, image_dimension=image_dimension)
     CartPole = ('CartPole-v1', False, ImageProcessDimension(80, 80, 170, 320, 0, 600))
     LunarLander = ('LunarLander-v2', False)
-    Pong = ('Pong-v0', True, ImageProcessDimension(32, 40, 34, 194, 16, 144))
 
 
 class Environment:

@@ -5,6 +5,8 @@ from DQN.dqn import dqn, DQNHyperParameters
 
 
 def main():
+    load_timestamp = None
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     env = Environment(GameList.CartPole, device)
     # Hyper parameters
@@ -21,7 +23,7 @@ def main():
                                     nn.Linear(256, env.get_n_actions())]
     }
 
-    dqn(env, hyper_parameters)
+    dqn(env, hyper_parameters, load_timestamp)
 
     return
 

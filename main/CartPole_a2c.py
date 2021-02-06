@@ -5,6 +5,8 @@ from A2C.a2c import a2c, A2CHyperParameters
 
 
 def main():
+    load_timestamp = None
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     env = Environment(GameList.CartPole, device)
     # Hyper parameters
@@ -19,7 +21,7 @@ def main():
                                            nn.Linear(256, 1)]
     }
 
-    a2c(env, hyper_parameters)
+    a2c(env, hyper_parameters, load_timestamp)
 
     return
 
